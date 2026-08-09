@@ -1,0 +1,16 @@
+# Ownership routing. GitHub requires the listed team/user to approve any PR
+# touching these paths. Replace with your real org teams before use.
+
+# Infrastructure lane — Platform Operations approves and merges
+/infra/                 @vinothtestorg/platform-operations
+
+# Identity and access lane — Security Assurance approves and merges
+/security/              @vinothtestorg/security-assurance
+
+# Platform machinery — Service Governance / Pipeline Engineering
+/catalog/               @vinothtestorg/service-governance
+/templates/             @vinothtestorg/pipeline-engineering
+/stackforge/            @vinothtestorg/pipeline-engineering
+/modules/               @vinothtestorg/pipeline-engineering
+/platform/              @vinothtestorg/platform-operations
+/.github/               @vinothtestorg/pipeline-engineering

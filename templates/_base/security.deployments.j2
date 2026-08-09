@@ -1,0 +1,36 @@
+{{ header }}
+identity_token "alicloud" {
+  audience = ["{{ audience }}"]
+}
+
+# The infrastructure stack must apply before this one. Terraform Cloud resolves the
+# ordering from this block; if the upstream apply fails, this stack does not plan.
+# The source is org/project/stack — the project segment is required, and the
+# upstream stack must live in that same project for the reference to resolve.
+upstream_input "infra" {
+  type   = "stack"
+  source = "app.terraform.io/{{ tfc_org }}/{{ project }}/{{ infra_stack }}"
+}
+
+{% for env in envs %}
+deployment "{{ env.name }}" {
+  inputs = {
+    env               = "{{ env.name }}"
+    region            = "{{ env.region }}"
+    role_arn          = "{{ env.security_role_arn }}"
+    oidc_provider_arn = "{{ env.oidc_provider_arn }}"
+    identity_token    = identity_token.alicloud.jwt
+
+{% for out in publish %}
+    {{ "%-25s"|format(out.name) }} = upstream_input.infra.{{ env.name }}_{{ out.name }}
+{%- endfor %}
+
+    common_tags = {
+      app_id     = "{{ meta.appId }}"
+      bu         = "{{ meta.bu }}"
+      env        = "{{ env.name }}"
+      managed_by = "stack-forge"
+    }
+  }
+}
+{% endfor %}

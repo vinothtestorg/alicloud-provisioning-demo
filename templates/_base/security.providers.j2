@@ -1,0 +1,34 @@
+{{ header }}
+required_providers {
+  alicloud = {
+    source  = "aliyun/alicloud"
+    version = "~> 1.245"
+  }
+}
+
+variable "env" { type = string }
+variable "region" { type = string }
+variable "role_arn" { type = string }
+variable "oidc_provider_arn" { type = string }
+variable "identity_token" {
+  type      = string
+  ephemeral = true
+}
+variable "common_tags" { type = map(string) }
+
+# Cross-stack inputs, produced by the infrastructure stack. Generated from the same
+# list that drives its publish_output blocks, so the two lanes cannot drift apart.
+{% for out in publish %}
+variable "{{ out.name }}" { type = {{ out.type }} }
+{%- endfor %}
+
+provider "alicloud" "this" {
+  config {
+    region = var.region
+    assume_role_with_oidc {
+      oidc_provider_arn = var.oidc_provider_arn
+      role_arn          = var.role_arn
+      oidc_token        = var.identity_token
+    }
+  }
+}

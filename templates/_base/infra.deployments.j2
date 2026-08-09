@@ -1,0 +1,37 @@
+{{ header }}
+identity_token "alicloud" {
+  audience = ["{{ audience }}"]
+}
+
+{% for env in envs %}
+deployment "{{ env.name }}" {
+  inputs = {
+    env               = "{{ env.name }}"
+    region            = "{{ env.region }}"
+    vpc_id            = "{{ env.vpc_id }}"
+    vswitch_ids       = {{ env.vswitch_ids | tojson }}
+    role_arn          = "{{ env.infra_role_arn }}"
+    oidc_provider_arn = "{{ env.oidc_provider_arn }}"
+    identity_token    = identity_token.alicloud.jwt
+    common_tags = {
+      app_id     = "{{ meta.appId }}"
+      bu         = "{{ meta.bu }}"
+      env        = "{{ env.name }}"
+      managed_by = "stack-forge"
+    }
+  }
+}
+{% endfor %}
+
+# Consumed by the security stack as upstream_input — this is the declared dependency
+# that replaces passing the cluster OIDC issuer between teams by hand.
+#
+# A published output belongs to one deployment, not to the stack as a whole, so the
+# name carries the environment. Two environments publishing a bare "bucket_arns"
+# would otherwise collide and the security stack could not tell them apart.
+{% for env in envs %}{% for out in publish %}
+publish_output "{{ env.name }}_{{ out.name }}" {
+  description = "{{ out.description }} ({{ env.name }})"
+  value       = deployment.{{ env.name }}.{{ out.name }}
+}
+{% endfor %}{% endfor %}

@@ -1,0 +1,3 @@
+sizes:
+  standard: { storage_class: Standard }
+  archive:  { storage_class: Archive }

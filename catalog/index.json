@@ -1,0 +1,157 @@
+{
+  "claims": [
+    {
+      "type": "ack",
+      "claimSchema": "ack/v1",
+      "module_version": "1.0.0",
+      "required": [
+        "name",
+        "size"
+      ],
+      "optional": [
+        "namespaces"
+      ],
+      "fields": {
+        "name": {
+          "type": "string",
+          "required": true,
+          "description": "Cluster name. Lower-case letters, digits and hyphens, 3-31 characters, must start with a letter.",
+          "pattern": "^[a-z][a-z0-9-]{2,30}$"
+        },
+        "size": {
+          "type": "string",
+          "required": true,
+          "description": "T-shirt size. The platform resolves it to a worker instance type and node count; a business unit never names an instance type directly. Changing what a size means is a sizing-map change and needs no manifest edits.",
+          "enum": [
+            "large",
+            "medium",
+            "small"
+          ],
+          "resolves-to": {
+            "large": {
+              "worker_instance_type": "ecs.g6.2xlarge",
+              "worker_count": 5
+            },
+            "medium": {
+              "worker_instance_type": "ecs.g6.xlarge",
+              "worker_count": 3
+            },
+            "small": {
+              "worker_instance_type": "ecs.g6.large",
+              "worker_count": 2
+            }
+          }
+        },
+        "namespaces": {
+          "type": "array",
+          "required": false,
+          "description": "Kubernetes namespaces to create on the cluster.",
+          "default": []
+        }
+      }
+    },
+    {
+      "type": "oss",
+      "claimSchema": "oss/v1",
+      "module_version": "1.0.0",
+      "required": [
+        "name",
+        "size"
+      ],
+      "optional": [
+        "versioning",
+        "prefixes"
+      ],
+      "fields": {
+        "name": {
+          "type": "string",
+          "required": true,
+          "description": "Bucket name. Lower-case letters, digits and hyphens, 3-41 characters, must start with a letter. Must be globally unique across AliCloud.",
+          "pattern": "^[a-z][a-z0-9-]{2,40}$"
+        },
+        "size": {
+          "type": "string",
+          "required": true,
+          "description": "Storage tier. The platform resolves it to a concrete storage class; a business unit never names one directly.",
+          "enum": [
+            "archive",
+            "standard"
+          ],
+          "resolves-to": {
+            "archive": {
+              "storage_class": "Archive"
+            },
+            "standard": {
+              "storage_class": "Standard"
+            }
+          }
+        },
+        "versioning": {
+          "type": "boolean",
+          "required": false,
+          "description": "Keep previous versions of overwritten or deleted objects.",
+          "default": false
+        },
+        "prefixes": {
+          "type": "array",
+          "required": false,
+          "description": "Key prefixes to create up front, for example \"incoming/\". These are also the only prefixes an access claim in the security lane may be scoped to.",
+          "default": []
+        }
+      }
+    },
+    {
+      "type": "ram",
+      "claimSchema": "ram/v1",
+      "module_version": "1.0.0",
+      "required": [
+        "name",
+        "identity_type",
+        "level"
+      ],
+      "optional": [],
+      "fields": {
+        "name": {
+          "type": "string",
+          "required": true,
+          "description": "Logical name for the grant. Becomes the RAM role, group and policy name; a business unit never names those objects directly.",
+          "pattern": "^[a-z][a-z0-9-]{2,40}$"
+        },
+        "identity_type": {
+          "type": "string",
+          "required": true,
+          "description": "Who the grant is for. \"workload\" binds a Kubernetes service account through RRSA; \"group\" binds a directory group of human users.",
+          "enum": [
+            "workload",
+            "group"
+          ]
+        },
+        "level": {
+          "type": "string",
+          "required": true,
+          "description": "Access level. The platform resolves it to a concrete action list held in the access map. A business unit cannot enumerate API actions, which is what keeps privilege escalation out of a claim.",
+          "enum": [
+            "read",
+            "readwrite"
+          ],
+          "resolves-to": {
+            "read": {
+              "policy_actions": [
+                "oss:GetObject",
+                "oss:ListObjects"
+              ]
+            },
+            "readwrite": {
+              "policy_actions": [
+                "oss:GetObject",
+                "oss:ListObjects",
+                "oss:PutObject",
+                "oss:DeleteObject"
+              ]
+            }
+          }
+        }
+      }
+    }
+  ]
+}

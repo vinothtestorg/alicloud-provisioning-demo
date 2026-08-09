@@ -1,0 +1,120 @@
+name: 01 · Intake — issue to pull request
+
+on:
+  issues:
+    types: [opened, edited]
+
+permissions:
+  contents: read          # PR is raised with a GitHub App token, not GITHUB_TOKEN
+  issues: write
+
+jobs:
+  intake:
+    if: contains(github.event.issue.labels.*.name, 'provision-request')
+    runs-on: ubuntu-latest
+    # Without this the default shell is `bash -e` with no pipefail, so every step
+    # here that pipes into `tee` to capture a log would report the exit status of
+    # `tee` — always zero. A claim that failed validation would then sail on and
+    # raise a pull request anyway, which is the one failure this pipeline exists to
+    # prevent. `shell: bash` runs `bash --noprofile --norc -eo pipefail`.
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+
+      - run: pip install --quiet pyyaml jsonschema jinja2 python-hcl2
+
+      - name: Extract the application id from the issue form
+        id: app
+        env:
+          BODY: ${{ github.event.issue.body }}
+        run: |
+          python3 - << 'PY' >> "$GITHUB_OUTPUT"
+          import os, re
+          body = os.environ["BODY"]
+          m = re.search(r"###\s*Application id\s*\n+\s*(\S+)", body)
+          print(f"id={m.group(1).strip() if m else ''}")
+          PY
+
+      - name: Write the issue body to a file
+        env:
+          BODY: ${{ github.event.issue.body }}
+        run: printf '%s' "$BODY" > /tmp/issue.md
+
+      - name: Parse the issue into the two lane manifests
+        id: parse
+        run: python3 tools/parse_issue.py /tmp/issue.md "${{ steps.app.outputs.id }}" 2>&1 | tee /tmp/parse.log
+
+      - name: Validate the claims against the published schemas
+        id: validate
+        run: python3 stackforge/cli.py validate --app "${{ steps.app.outputs.id }}" 2>&1 | tee /tmp/validate.log
+
+      - name: Generate the stack files for both lanes
+        run: python3 stackforge/cli.py render --app "${{ steps.app.outputs.id }}" 2>&1 | tee /tmp/render.log
+
+      # The pull request is authored by a GitHub App, and that is a review-integrity
+      # requirement rather than a stylistic one. GitHub forbids approving your own
+      # pull request, so if a human's token opened it, that human could not then
+      # approve their own lane and one person would have to cover both teams. A bot
+      # author leaves Platform Operations and Security Assurance free to approve independently.
+      #
+      # It also solves the GITHUB_TOKEN problem: pull requests opened with the default
+      # token do not trigger further workflow runs, so 02-validate-pr would never fire.
+      - name: Mint a GitHub App token
+        id: app-token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ vars.INTAKE_APP_ID }}
+          private-key: ${{ secrets.INTAKE_APP_PRIVATE_KEY }}
+
+      - name: Raise the pull request
+        id: pr
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ steps.app-token.outputs.token }}
+          branch: provision/${{ steps.app.outputs.id }}-${{ github.event.issue.number }}
+          delete-branch: true
+          title: "Provision ${{ steps.app.outputs.id }} (closes #${{ github.event.issue.number }})"
+          commit-message: "stack-forge: generate ${{ steps.app.outputs.id }} from issue #${{ github.event.issue.number }}"
+          body: |
+            Generated from issue #${{ github.event.issue.number }} by stack-forge.
+
+            | Lane | Path | Approver |
+            |---|---|---|
+            | Infrastructure | `infra/apps/${{ steps.app.outputs.id }}/` | Platform Operations (CODEOWNERS) |
+            | Identity and access | `security/apps/${{ steps.app.outputs.id }}/` | Security Assurance (CODEOWNERS) |
+
+            The stack files are generated. Review the manifests for intent and the
+            generated HCL for effect. Both code owners must approve before merge.
+
+            On merge, the Terraform Cloud stacks are created and planned. The security
+            stack waits on the infrastructure stack's published outputs.
+
+      - name: Report success back to the issue
+        if: success()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner, repo: context.repo.repo,
+              body: `Claims validated and stack files generated. Pull request: ${{ steps.pr.outputs.pull-request-url }}\n\nPlatform Operations and Security Assurance have been requested as reviewers on their respective paths.`
+            })
+
+      - name: Report failure back to the issue
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const read = f => { try { return fs.readFileSync(f,'utf8'); } catch { return ''; } };
+            const log = (read('/tmp/parse.log') + read('/tmp/validate.log')).trim() || 'See the workflow run for details.';
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner, repo: context.repo.repo,
+              body: `The request could not be processed, so no pull request was raised.\n\n\`\`\`\n${log}\n\`\`\`\n\nEdit this issue to correct the claim and the check will run again.`
+            })

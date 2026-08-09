@@ -1,0 +1,7 @@
+# Build-time handover notes, not part of the deliverable. The decisions that came
+# out of it are recorded in README.md and in comments next to the code they explain.
+HANDOVER.md
+
+.DS_Store
+__pycache__/
+*.pyc

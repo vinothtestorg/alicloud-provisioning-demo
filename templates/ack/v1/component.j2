@@ -1,0 +1,16 @@
+component "{{ c.tf_name }}" {
+  source  = "{{ c.module_source }}"
+  inputs = {
+    cluster_name         = "{{ c.claim.name }}-${var.env}"
+    worker_instance_type = "{{ c.resolved.worker_instance_type }}"
+    worker_count         = {{ c.resolved.worker_count }}
+    namespaces           = {{ c.claim.get('namespaces', []) | tojson }}
+    vpc_id               = var.vpc_id
+    vswitch_ids          = var.vswitch_ids
+    enable_rrsa          = true
+    tags                 = var.common_tags
+  }
+  providers = {
+    alicloud = provider.alicloud.this
+  }
+}

@@ -1,0 +1,26 @@
+# Platform Operations-owned. BU manifests reference environment names only; all wiring lives here.
+tfc_org: vinothkaruppusamy
+
+# Both lanes live in ONE project. This is not a simplification — publish_output and
+# upstream_input only resolve between Stacks in the same project, so a two-project
+# split would silently break the infra -> security dependency. Separation of duties
+# is enforced where it actually bites: CODEOWNERS routes the two directories to
+# different approving teams, and the two lanes assume different RAM roles.
+projects:
+  infra: bu1-nonprod
+  security: bu1-nonprod
+
+# Must match the audience configured on the AliCloud RAM OIDC provider.
+identity_token_audience: alicloud.tfc.vinothkaruppusamy
+
+environments:
+  dev:
+    region: ap-southeast-1
+    vpc_id: vpc-0000000000000000dev
+    vswitch_ids: ["vsw-0jl00000000000000dev", "vsw-0jl00000000000001dev"]
+    # Two roles, deliberately disjoint: the infra role carries no ram:* actions and
+    # the security role carries nothing but ram:*. Neither lane can finish the
+    # other's work. Only exercised on a real apply, which is out of scope here.
+    infra_role_arn: "acs:ram::5698578488787527:role/tfc-stacks-dev"
+    security_role_arn: "acs:ram::5698578488787527:role/tfc-sec-dev"
+    oidc_provider_arn: "acs:ram::5698578488787527:oidc-provider/hcp-terraform"

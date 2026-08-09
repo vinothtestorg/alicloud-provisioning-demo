@@ -1,0 +1,18 @@
+apiVersion: platform.group.example/v1
+kind: AccessClaim
+metadata:
+  appId: claims-app
+  bu: bu1
+workloadIdentity:
+  - name: claims-api
+    namespace: claims-app
+    serviceAccount: claims-api
+    resource: claims-documents
+    prefix: incoming/
+    level: readwrite
+userAccess:
+  - name: claims-reader
+    group: GRP-BU1-CLAIMS-READER
+    resource: claims-documents
+    prefix: reports/
+    level: read

@@ -1,0 +1,30 @@
+{{ header }}
+required_providers {
+  alicloud = {
+    source  = "aliyun/alicloud"
+    version = "~> 1.245"
+  }
+}
+
+variable "env" { type = string }
+variable "region" { type = string }
+variable "vpc_id" { type = string }
+variable "vswitch_ids" { type = list(string) }
+variable "role_arn" { type = string }
+variable "oidc_provider_arn" { type = string }
+variable "identity_token" {
+  type      = string
+  ephemeral = true
+}
+variable "common_tags" { type = map(string) }
+
+provider "alicloud" "this" {
+  config {
+    region = var.region
+    assume_role_with_oidc {
+      oidc_provider_arn = var.oidc_provider_arn
+      role_arn          = var.role_arn
+      oidc_token        = var.identity_token
+    }
+  }
+}

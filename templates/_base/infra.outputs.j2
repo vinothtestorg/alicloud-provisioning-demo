@@ -1,0 +1,11 @@
+
+# Stack-level outputs. These exist so the deployment file has something to publish:
+# publish_output cannot reach into `component.*` directly, it can only forward a
+# named output of a specific deployment.
+{% for out in publish %}
+output "{{ out.name }}" {
+  description = "{{ out.description }}"
+  type        = {{ out.type }}
+  value       = {{ out.value }}
+}
+{% endfor %}

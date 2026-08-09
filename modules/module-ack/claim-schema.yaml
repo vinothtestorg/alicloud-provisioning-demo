@@ -1,0 +1,30 @@
+# Service Governance-owned overlay. Only these fields are BU-settable.
+#
+# Everything the module declares in variables.tf is internal by default. A field
+# appears here only because Service Governance decided a business unit may set it, and the
+# build refuses to publish a field that maps to a variable the module does not have.
+module: ack
+claim_version: v1
+exposed:
+  name:
+    required: true
+    type: string
+    pattern: "^[a-z][a-z0-9-]{2,30}$"
+    maps_to: cluster_name
+    description: >-
+      Cluster name. Lower-case letters, digits and hyphens, 3-31 characters,
+      must start with a letter.
+  size:
+    required: true
+    type: string
+    enum_from_sizing: sizes
+    virtual: true
+    description: >-
+      T-shirt size. The platform resolves it to a worker instance type and node
+      count; a business unit never names an instance type directly. Changing what
+      a size means is a sizing-map change and needs no manifest edits.
+  namespaces:
+    required: false
+    type: array
+    default: []
+    description: Kubernetes namespaces to create on the cluster.

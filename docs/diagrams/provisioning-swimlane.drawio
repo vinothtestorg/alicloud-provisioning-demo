@@ -1,0 +1,158 @@
+<?xml version='1.0' encoding='utf-8'?>
+<mxfile host="app.diagrams.net" type="device">
+  <diagram name="Provisioning workflow" id="provisioning">
+    <mxGraphModel dx="1400" dy="800" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="826" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="pool" value="Schema-driven AliCloud provisioning — issue to governed apply" style="swimlane;html=1;childLayout=stackLayout;resizeParent=0;resizeParentMax=0;horizontal=1;startSize=30;horizontalStack=0;fontSize=16;fontStyle=1;fillColor=#ffffff;strokeColor=#333333;" vertex="1" parent="1">
+          <mxGeometry x="20" y="20" width="4910" height="870" as="geometry" />
+        </mxCell>
+        <mxCell id="lane_bu" value="BU App Owner" style="swimlane;html=1;startSize=190;horizontal=0;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=13;fontStyle=1;" vertex="1" parent="pool">
+          <mxGeometry x="0" y="30" width="4910" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="lane_gh" value="GitHub — issue &amp; PR" style="swimlane;html=1;startSize=190;horizontal=0;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=13;fontStyle=1;" vertex="1" parent="pool">
+          <mxGeometry x="0" y="150" width="4910" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="lane_auto" value="stack-forge (Actions)" style="swimlane;html=1;startSize=190;horizontal=0;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=13;fontStyle=1;" vertex="1" parent="pool">
+          <mxGeometry x="0" y="270" width="4910" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="lane_cops" value="Platform Operations (infra lane)" style="swimlane;html=1;startSize=190;horizontal=0;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=13;fontStyle=1;" vertex="1" parent="pool">
+          <mxGeometry x="0" y="390" width="4910" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="lane_security-assurance" value="Security Assurance (security lane)" style="swimlane;html=1;startSize=190;horizontal=0;fillColor=#f8cecc;strokeColor=#b85450;fontSize=13;fontStyle=1;" vertex="1" parent="pool">
+          <mxGeometry x="0" y="510" width="4910" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="lane_tfc" value="Terraform Cloud Stacks" style="swimlane;html=1;startSize=190;horizontal=0;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=13;fontStyle=1;" vertex="1" parent="pool">
+          <mxGeometry x="0" y="630" width="4910" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="lane_ali" value="AliCloud" style="swimlane;html=1;startSize=190;horizontal=0;fillColor=#f5f5f5;strokeColor=#666666;fontSize=13;fontStyle=1;" vertex="1" parent="pool">
+          <mxGeometry x="0" y="750" width="4910" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="s1" value="Raise issue from&#10;provisioning template&#10;(manifest + access YAML)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#333333;fontSize=11;" vertex="1" parent="lane_bu">
+          <mxGeometry x="230" y="30" width="200" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="s2" value="Issue labelled&#10;provision-request" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#333333;fontSize=11;" vertex="1" parent="lane_gh">
+          <mxGeometry x="490" y="30" width="200" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="s3" value="01-intake&#10;parse issue into&#10;two lane manifests" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#333333;fontSize=11;" vertex="1" parent="lane_auto">
+          <mxGeometry x="750" y="30" width="200" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="s4" value="Validate claims against&#10;published JSON Schemas" style="rhombus;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#333333;fontSize=11;" vertex="1" parent="lane_auto">
+          <mxGeometry x="1010" y="30" width="200" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="s5" value="Reject: comment on issue,&#10;no PR raised" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;dashed=1;fontSize=11;" vertex="1" parent="lane_auto">
+          <mxGeometry x="1270" y="30" width="200" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="s6" value="Render both lanes&#10;from Jinja templates" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#333333;fontSize=11;" vertex="1" parent="lane_auto">
+          <mxGeometry x="1530" y="30" width="200" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="s7" value="PR opened by&#10;GitHub App&#10;(not a human token)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#333333;fontSize=11;" vertex="1" parent="lane_gh">
+          <mxGeometry x="1790" y="30" width="200" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="s8" value="02-validate-pr&#10;re-render, fail on drift" style="rhombus;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#333333;fontSize=11;" vertex="1" parent="lane_auto">
+          <mxGeometry x="2050" y="30" width="200" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="s9" value="Approve infra/&#10;(CODEOWNERS)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#333333;fontSize=11;" vertex="1" parent="lane_cops">
+          <mxGeometry x="2310" y="30" width="200" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="s10" value="Approve security/&#10;(CODEOWNERS)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#333333;fontSize=11;" vertex="1" parent="lane_security-assurance">
+          <mxGeometry x="2310" y="30" width="200" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="s11" value="Squash merge to main" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#333333;fontSize=11;" vertex="1" parent="lane_gh">
+          <mxGeometry x="2570" y="30" width="200" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="s12" value="03-provision&#10;ensure_stacks.py" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#333333;fontSize=11;" vertex="1" parent="lane_auto">
+          <mxGeometry x="2830" y="30" width="200" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="s13" value="&lt;app&gt;-infra stack&#10;created, config fetched" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#333333;fontSize=11;" vertex="1" parent="lane_tfc">
+          <mxGeometry x="3090" y="30" width="200" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="s14" value="Infra plan&#10;(assumes infra RAM role)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#333333;fontSize=11;" vertex="1" parent="lane_tfc">
+          <mxGeometry x="3350" y="30" width="200" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="s15" value="STS AssumeRole&#10;via OIDC / AKSK" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=11;" vertex="1" parent="lane_ali">
+          <mxGeometry x="3350" y="30" width="200" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="s16" value="Approve infra apply" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#333333;fontSize=11;" vertex="1" parent="lane_cops">
+          <mxGeometry x="3610" y="30" width="200" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="s17" value="Apply publishes&#10;outputs" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#333333;fontSize=11;" vertex="1" parent="lane_tfc">
+          <mxGeometry x="3870" y="30" width="200" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="s18" value="&lt;app&gt;-security stack&#10;upstream_input resolves" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#333333;fontSize=11;" vertex="1" parent="lane_tfc">
+          <mxGeometry x="4130" y="30" width="200" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="s19" value="Approve security apply" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#333333;fontSize=11;" vertex="1" parent="lane_security-assurance">
+          <mxGeometry x="4390" y="30" width="200" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="s20" value="RAM roles and policies&#10;bound to RRSA" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#333333;fontSize=11;" vertex="1" parent="lane_tfc">
+          <mxGeometry x="4650" y="30" width="200" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="e_s1_s2" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;fontSize=10;" edge="1" parent="pool" source="s1" target="s2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_s2_s3" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;fontSize=10;" edge="1" parent="pool" source="s2" target="s3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_s3_s4" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;fontSize=10;" edge="1" parent="pool" source="s3" target="s4">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_s4_s5" value="invalid" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;fontSize=10;strokeColor=#b85450;dashed=1;" edge="1" parent="pool" source="s4" target="s5">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_s4_s6" value="valid" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;fontSize=10;" edge="1" parent="pool" source="s4" target="s6">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_s6_s7" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;fontSize=10;" edge="1" parent="pool" source="s6" target="s7">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_s7_s8" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;fontSize=10;" edge="1" parent="pool" source="s7" target="s8">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_s8_s9" value="green" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;fontSize=10;" edge="1" parent="pool" source="s8" target="s9">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_s8_s10" value="green" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;fontSize=10;" edge="1" parent="pool" source="s8" target="s10">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_s9_s11" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;fontSize=10;" edge="1" parent="pool" source="s9" target="s11">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_s10_s11" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;fontSize=10;" edge="1" parent="pool" source="s10" target="s11">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_s11_s12" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;fontSize=10;" edge="1" parent="pool" source="s11" target="s12">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_s12_s13" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;fontSize=10;" edge="1" parent="pool" source="s12" target="s13">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_s13_s14" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;fontSize=10;" edge="1" parent="pool" source="s13" target="s14">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_s14_s15" value="credential" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;fontSize=10;strokeColor=#666666;dashed=1;" edge="1" parent="pool" source="s14" target="s15">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_s14_s16" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;fontSize=10;" edge="1" parent="pool" source="s14" target="s16">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_s16_s17" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;fontSize=10;" edge="1" parent="pool" source="s16" target="s17">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_s17_s18" value="publish_output" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;fontSize=10;" edge="1" parent="pool" source="s17" target="s18">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_s18_s19" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;fontSize=10;" edge="1" parent="pool" source="s18" target="s19">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_s19_s20" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;fontSize=10;" edge="1" parent="pool" source="s19" target="s20">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="note" value="&lt;b&gt;Gates, in order:&lt;/b&gt; schema validation • drift check • two CODEOWNERS approvals • infra plan approval • security plan approval.&lt;br&gt;&lt;b&gt;Hard dependency:&lt;/b&gt; the security stack cannot plan until the infra stack has applied and published its outputs, and both stacks must live in the same TFC project." style="text;html=1;whiteSpace=wrap;fontSize=12;align=left;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="20" y="910" width="4910" height="60" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

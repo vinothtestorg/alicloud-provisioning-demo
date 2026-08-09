@@ -1,0 +1,4 @@
+# Normalise to LF everywhere. The generated stack files are compared byte-for-byte by
+# 02-validate-pr.yml, so a machine with core.autocrlf=true would otherwise re-render
+# LF output over a CRLF working tree and fail the drift check on every pull request.
+* text=auto eol=lf

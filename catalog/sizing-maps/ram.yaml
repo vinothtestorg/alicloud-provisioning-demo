@@ -1,0 +1,4 @@
+# Access levels resolve to concrete action lists. Security Assurance owns this file.
+levels:
+  read:      { policy_actions: ["oss:GetObject", "oss:ListObjects"] }
+  readwrite: { policy_actions: ["oss:GetObject", "oss:ListObjects", "oss:PutObject", "oss:DeleteObject"] }

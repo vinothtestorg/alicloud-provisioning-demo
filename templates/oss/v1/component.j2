@@ -1,0 +1,14 @@
+component "{{ c.tf_name }}" {
+  source  = "{{ c.module_source }}"
+  inputs = {
+    bucket_name   = "{{ c.claim.name }}-${var.env}"
+    storage_class = "{{ c.resolved.storage_class }}"
+    versioning    = {{ 'true' if c.claim.get('versioning') else 'false' }}
+    prefixes      = {{ c.claim.get('prefixes', []) | tojson }}
+    encryption    = "KMS"
+    tags          = var.common_tags
+  }
+  providers = {
+    alicloud = provider.alicloud.this
+  }
+}

@@ -1,0 +1,58 @@
+name: Infrastructure provisioning request
+description: Supply the application manifest and access claim. Automation raises the PR.
+title: "[provision] "
+labels: ["provision-request"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Paste both claims below. Fields and allowed values come from the service catalog
+        (`catalog/index.json`). Anything outside the published schema will fail validation
+        and the automation will comment on this issue instead of raising a PR.
+  - type: input
+    id: app
+    attributes:
+      label: Application id
+      placeholder: claims-app
+    validations:
+      required: true
+  - type: textarea
+    id: manifest
+    attributes:
+      label: manifest.yaml (infrastructure — Platform Operations owned)
+      render: yaml
+      placeholder: |
+        apiVersion: platform.group.example/v1
+        kind: AppClaim
+        metadata:
+          appId: claims-app
+          bu: bu1
+          environments: [dev]
+        components:
+          - type: ack
+            claimSchema: ack/v1
+            name: claims-cluster
+            size: small
+            namespaces: [claims-app]
+    validations:
+      required: true
+  - type: textarea
+    id: access
+    attributes:
+      label: access.yaml (identity and access — Security Assurance owned)
+      render: yaml
+      placeholder: |
+        apiVersion: platform.group.example/v1
+        kind: AccessClaim
+        metadata:
+          appId: claims-app
+          bu: bu1
+        workloadIdentity:
+          - name: claims-api
+            namespace: claims-app
+            serviceAccount: claims-api
+            resource: claims-documents
+            prefix: incoming/
+            level: readwrite
+    validations:
+      required: true

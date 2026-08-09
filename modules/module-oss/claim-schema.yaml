@@ -1,0 +1,32 @@
+# Service Governance-owned overlay. Only these fields are BU-settable.
+module: oss
+claim_version: v1
+exposed:
+  name:
+    required: true
+    type: string
+    pattern: "^[a-z][a-z0-9-]{2,40}$"
+    maps_to: bucket_name
+    description: >-
+      Bucket name. Lower-case letters, digits and hyphens, 3-41 characters, must
+      start with a letter. Must be globally unique across AliCloud.
+  size:
+    required: true
+    type: string
+    enum_from_sizing: sizes
+    virtual: true
+    description: >-
+      Storage tier. The platform resolves it to a concrete storage class; a
+      business unit never names one directly.
+  versioning:
+    required: false
+    type: boolean
+    default: false
+    description: Keep previous versions of overwritten or deleted objects.
+  prefixes:
+    required: false
+    type: array
+    default: []
+    description: >-
+      Key prefixes to create up front, for example "incoming/". These are also the
+      only prefixes an access claim in the security lane may be scoped to.

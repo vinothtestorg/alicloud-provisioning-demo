@@ -1,0 +1,18 @@
+apiVersion: platform.group.example/v1
+kind: AppClaim
+metadata:
+  appId: claims-app
+  bu: bu1
+  environments: [dev]
+components:
+  - type: ack
+    claimSchema: ack/v1
+    name: claims-cluster
+    size: small
+    namespaces: [claims-app]
+  - type: oss
+    claimSchema: oss/v1
+    name: claims-documents
+    size: standard
+    versioning: true
+    prefixes: ["incoming/", "reports/"]

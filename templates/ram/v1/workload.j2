@@ -1,0 +1,20 @@
+# Workload identity (RRSA): {{ c.claim.name }} -> {{ c.claim.serviceAccount }} in {{ c.claim.namespace }}
+component "{{ c.tf_name }}" {
+  source = "{{ c.module_source }}"
+  inputs = {
+    role_name         = "{{ c.claim.name }}-${var.env}"
+    trust_type        = "oidc"
+    oidc_provider_arn = var.cluster_rrsa_provider_arn
+    oidc_issuer_url   = var.cluster_rrsa_issuer
+    service_account   = "{{ c.claim.namespace }}:{{ c.claim.serviceAccount }}"
+    policy_name       = "{{ c.claim.name }}-${var.env}-policy"
+    policy_actions    = {{ c.resolved.policy_actions | tojson }}
+    policy_resources  = [
+      "${var.bucket_arns["{{ c.claim.resource }}"]}/{{ c.claim.prefix }}*"
+    ]
+    tags = var.common_tags
+  }
+  providers = {
+    alicloud = provider.alicloud.this
+  }
+}

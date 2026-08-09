@@ -1,0 +1,72 @@
+name: 02 · Validate pull request
+
+on:
+  pull_request:
+    paths:
+      - 'infra/apps/**'
+      - 'security/apps/**'
+      - 'catalog/**'
+      - 'templates/**'
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+
+      - run: pip install --quiet pyyaml jsonschema jinja2 python-hcl2
+
+      - name: Determine which applications changed
+        id: apps
+        run: |
+          APPS=$(git diff --name-only origin/${{ github.base_ref }}...HEAD \
+                 | grep -oE '(infra|security)/apps/[^/]+' \
+                 | cut -d/ -f3 | sort -u | tr '\n' ' ')
+          echo "list=$APPS" >> "$GITHUB_OUTPUT"
+          echo "Changed applications: ${APPS:-none}"
+
+      - name: Re-validate every changed claim
+        if: steps.apps.outputs.list != ''
+        run: |
+          for app in ${{ steps.apps.outputs.list }}; do
+            echo "::group::validate $app"
+            python3 stackforge/cli.py validate --app "$app"
+            echo "::endgroup::"
+          done
+
+      - name: Confirm the generated files match the manifests
+        if: steps.apps.outputs.list != ''
+        run: |
+          for app in ${{ steps.apps.outputs.list }}; do
+            python3 stackforge/cli.py render --app "$app" >/dev/null
+          done
+          if ! git diff --quiet -- '*/stacks/*'; then
+            echo "::error::Generated stack files do not match their manifests."
+            echo "Someone has hand-edited generated code, or the templates changed"
+            echo "without regeneration. Diff follows:"
+            git --no-pager diff -- '*/stacks/*'
+            exit 1
+          fi
+          echo "Generated files are in sync with the manifests."
+
+      - name: Summarise the ownership split for reviewers
+        if: steps.apps.outputs.list != ''
+        run: |
+          {
+            echo "### Ownership split"
+            echo ""
+            echo "| Lane | Path | Approver |"
+            echo "|---|---|---|"
+            for app in ${{ steps.apps.outputs.list }}; do
+              echo "| Infrastructure | \`infra/apps/$app/\` | Platform Operations |"
+              echo "| Identity and access | \`security/apps/$app/\` | Security Assurance |"
+            done
+          } >> "$GITHUB_STEP_SUMMARY"

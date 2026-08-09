@@ -1,0 +1,5 @@
+# Changing an instance type here rolls out via a bump PR. BU manifests are untouched.
+sizes:
+  small:  { worker_instance_type: ecs.g6.large,   worker_count: 2 }
+  medium: { worker_instance_type: ecs.g6.xlarge,  worker_count: 3 }
+  large:  { worker_instance_type: ecs.g6.2xlarge, worker_count: 5 }

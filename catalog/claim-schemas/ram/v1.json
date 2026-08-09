@@ -1,0 +1,67 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "claim-schemas/ram/v1.json",
+  "title": "ram claim (v1)",
+  "type": "object",
+  "properties": {
+    "type": {
+      "const": "ram"
+    },
+    "claimSchema": {
+      "const": "ram/v1"
+    },
+    "name": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9-]{2,40}$",
+      "description": "Logical name for the grant. Becomes the RAM role, group and policy name; a business unit never names those objects directly.",
+      "x-virtual": true
+    },
+    "identity_type": {
+      "type": "string",
+      "enum": [
+        "workload",
+        "group"
+      ],
+      "description": "Who the grant is for. \"workload\" binds a Kubernetes service account through RRSA; \"group\" binds a directory group of human users.",
+      "x-virtual": true
+    },
+    "level": {
+      "type": "string",
+      "description": "Access level. The platform resolves it to a concrete action list held in the access map. A business unit cannot enumerate API actions, which is what keeps privilege escalation out of a claim.",
+      "enum": [
+        "read",
+        "readwrite"
+      ],
+      "x-resolves-to": {
+        "read": {
+          "policy_actions": [
+            "oss:GetObject",
+            "oss:ListObjects"
+          ]
+        },
+        "readwrite": {
+          "policy_actions": [
+            "oss:GetObject",
+            "oss:ListObjects",
+            "oss:PutObject",
+            "oss:DeleteObject"
+          ]
+        }
+      },
+      "x-virtual": true
+    }
+  },
+  "required": [
+    "type",
+    "claimSchema",
+    "name",
+    "identity_type",
+    "level"
+  ],
+  "additionalProperties": false,
+  "x-module": {
+    "name": "ram",
+    "internal_variables": 10,
+    "exposed_fields": 3
+  }
+}

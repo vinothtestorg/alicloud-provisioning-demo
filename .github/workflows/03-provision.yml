@@ -1,0 +1,63 @@
+name: 03 · Provision — merge to Terraform Cloud
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'infra/apps/**'
+      - 'security/apps/**'
+
+permissions:
+  contents: read
+
+jobs:
+  provision:
+    runs-on: ubuntu-latest
+    environment: nonprod        # optional GitHub environment gate
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 2 }
+
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+
+      - run: pip install --quiet pyyaml
+
+      - name: Determine which applications were merged
+        id: apps
+        run: |
+          # On the very first push there is no HEAD~1 and the diff aborts, so fall
+          # back to the empty tree and treat everything in the commit as changed.
+          BASE=$(git rev-parse HEAD~1 2>/dev/null || git hash-object -t tree /dev/null)
+          APPS=$(git diff --name-only "$BASE" HEAD \
+                 | grep -oE '(infra|security)/apps/[^/]+' \
+                 | cut -d/ -f3 | sort -u | tr '\n' ' ')
+          echo "list=$APPS" >> "$GITHUB_OUTPUT"
+          echo "Applications to provision: ${APPS:-none}"
+
+      - name: Ensure the Terraform Cloud stacks exist
+        if: steps.apps.outputs.list != ''
+        env:
+          TFE_TOKEN:      ${{ secrets.TFE_TOKEN }}
+          TFC_ORG:        ${{ vars.TFC_ORG }}
+          OAUTH_TOKEN_ID: ${{ vars.TFC_OAUTH_TOKEN_ID }}
+          REPO:           ${{ github.repository }}
+          BRANCH:         main
+        run: |
+          for app in ${{ steps.apps.outputs.list }}; do
+            echo "::group::ensure stacks for $app"
+            python3 platform/ensure_stacks.py "$app"
+            echo "::endgroup::"
+          done
+
+      - name: Record what happens next
+        if: steps.apps.outputs.list != ''
+        run: |
+          {
+            echo "### Provisioning handed to Terraform Cloud"
+            echo ""
+            for app in ${{ steps.apps.outputs.list }}; do
+              echo "- \`$app-infra\` plans now. **Platform Operations** approves the apply."
+              echo "- \`$app-security\` waits on the infrastructure outputs, then plans. **Security Assurance** approves the apply."
+            done
+          } >> "$GITHUB_STEP_SUMMARY"

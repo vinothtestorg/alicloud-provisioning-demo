@@ -1,0 +1,17 @@
+# Human access: RAM group {{ c.claim.group }}
+component "{{ c.tf_name }}" {
+  source = "{{ c.module_source }}"
+  inputs = {
+    group_name       = "{{ c.claim.group }}"
+    trust_type       = "account"
+    policy_name      = "{{ c.claim.name }}-${var.env}-policy"
+    policy_actions   = {{ c.resolved.policy_actions | tojson }}
+    policy_resources = [
+      "${var.bucket_arns["{{ c.claim.resource }}"]}/{{ c.claim.prefix }}*"
+    ]
+    tags = var.common_tags
+  }
+  providers = {
+    alicloud = provider.alicloud.this
+  }
+}

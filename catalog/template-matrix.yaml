@@ -1,0 +1,18 @@
+# Service Governance-owned. Which module version and stack template stack-forge uses per claim type.
+# BUs never pick versions — bump PRs edit this file.
+modules:
+  ack:
+    module_source: "../../../../modules/module-ack"   # demo: local path, canonical form. Real org: app.terraform.io/<ORG>/ack/alicloud
+    module_version: "1.0.0"
+    template: ack/v1
+    lane: infra
+  oss:
+    module_source: "../../../../modules/module-oss"
+    module_version: "1.0.0"
+    template: oss/v1
+    lane: infra
+  ram:
+    module_source: "../../../../modules/module-ram"
+    module_version: "1.0.0"
+    template: ram/v1
+    lane: security
