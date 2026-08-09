@@ -28,7 +28,10 @@ jobs:
         run: |
           # On the very first push there is no HEAD~1 and the diff aborts, so fall
           # back to the empty tree and treat everything in the commit as changed.
-          BASE=$(git rev-parse HEAD~1 2>/dev/null || git hash-object -t tree /dev/null)
+          # --verify -q is load-bearing: plain `git rev-parse HEAD~1` prints the
+          # literal string "HEAD~1" on stdout *and* exits non-zero, so a bare
+          # `||` fallback concatenates both values and every later git call fails.
+          BASE=$(git rev-parse --verify -q "HEAD~1^{commit}" || git hash-object -t tree /dev/null)
           APPS=$(git diff --name-only "$BASE" HEAD \
                  | grep -oE '(infra|security)/apps/[^/]+' \
                  | cut -d/ -f3 | sort -u | tr '\n' ' ')
