@@ -1,0 +1,18 @@
+apiVersion: platform.group.example/v1
+kind: AccessClaim
+metadata:
+  appId: policy-app
+  bu: bu1
+workloadIdentity:
+  - name: policy-api
+    namespace: policy-app
+    serviceAccount: policy-api
+    resource: policy-documents
+    prefix: incoming/
+    level: readwrite
+userAccess:
+  - name: policy-reader
+    group: GRP-BU1-POLICY-READER
+    resource: policy-documents
+    prefix: reports/
+    level: read

@@ -1,0 +1,18 @@
+apiVersion: platform.group.example/v1
+kind: AppClaim
+metadata:
+  appId: policy-app
+  bu: bu1
+  environments: [dev]
+components:
+  - type: ack
+    claimSchema: ack/v1
+    name: policy-cluster
+    size: small
+    namespaces: [policy-app]
+  - type: oss
+    claimSchema: oss/v1
+    name: policy-documents
+    size: standard
+    versioning: true
+    prefixes: ["incoming/", "reports/"]
